@@ -1,0 +1,137 @@
+body {
+    padding: 0;
+    margin: 0;
+    overflow-x: hidden;
+}
+
+h1 {
+    text-align: center;
+    margin: 0;
+    padding: 10px 0;
+    font-size: 2em;
+    color: #212121;
+}
+
+.white-text {
+    color: #FFFFFF;
+}
+
+.color-picker {
+    position: absolute;
+}
+
+.topic {
+    background-color: rgba(241, 109, 22, 0.98);
+    margin-bottom: 10px;
+}
+
+.inline {
+    display: inline-block;
+    margin-left: 10px;
+}
+
+.clear-canvas {
+    display: inline-block;
+    vertical-align: top;
+    border-radius: 3px;
+    width: 100%;
+    font-size: 14px;
+    padding: 5px 10px;
+    background-color: #008800;
+    color: #ffffff;
+}
+.alphaimg {
+    height: 100px;
+    width: 100px;
+    border-style: solid;
+    border-color: grey;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: contain;
+    border-radius: 5px;
+    margin: auto;
+    background-color: rgb(0,0,0);
+}
+
+h3 {
+    margin: auto;
+    text-align: center;
+    padding-top: 1em;
+}
+
+.red {
+    background-image: linear-gradient(to left, red, #B20000, #870000, #490000);
+    border-radius: 3px;
+    border-style: solid;
+    border-width: thin;
+}
+
+.blue {
+    background-image: linear-gradient(to left, blue, #0000B9, #000087, #000044);
+    border-radius: 3px;
+    border-style: solid;
+    border-width: thin;
+}
+
+.green {
+    background-image: linear-gradient(to left, #00ff00, #00B200, #008800, #005200);
+    border-radius: 3px;
+    border-style: solid;
+    border-width: thin;
+}
+
+.opacity{
+    background-color: rgba(255, 255, 255, 0.1);
+    border-radius: 3px;
+    border-style: solid;
+    border-width: thin;
+}
+
+.margin-top {
+    margin: 10px 0px;
+}
+
+input[name]{
+    cursor: pointer;
+}
+
+input[name='red']{
+    width: 98%;
+}
+
+input[name='blue'] {
+    width: 98%;
+}
+
+input[name='green']{
+    width: 98%;
+}
+
+input[name='opacity']{
+    width: 98%;
+}
+
+.satcolor {
+    background-color:  transparent;
+}
+
+.sat {
+    background-image: linear-gradient(to right, #494949 0%, transparent 100%), linear-gradient(to right, #fff 0%, transparent 0%);
+    border-radius: 3px;
+    border-style: solid;
+    border-width: thin;
+}
+
+.light {
+    background-image: linear-gradient(to right, #000 0%, transparent 100%), linear-gradient(to right, #fff 0%, transparent 100%);
+    border-radius: 3px;
+    border-style: solid;
+    border-width: thin;
+}
+
+.alpha {
+    background-image: linear-gradient(to right, hsla(66, 31%, 94%, 0.18), white);
+    border-radius: 3px;
+    border-style: solid;
+    border-width: thin;
+}
