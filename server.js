@@ -4,7 +4,7 @@ var http = require('http').Server(app);
 var io = require('socket.io')(http);
 app.use(express.static(__dirname +''));
 
-http.listen(3000,'0.0.0.0', function(){
+http.listen(8080, function(){
     console.log('listening on *:8080');
 });
 
