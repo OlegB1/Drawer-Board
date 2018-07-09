@@ -1,12 +1,14 @@
-var express = require('express');
-var app = require('express')();
-var http = require('http').Server(app);
-var io = require('socket.io')(http);
-app.use(express.static(__dirname +''));
+const express = require('express');
+const app = require('express')();
+const http = require('http').Server(app);
+const io = require('socket.io')(http);
+const path = require('path')
 
-http.listen(8080, function(){
-    console.log('listening on *:8080');
-});
+const PORT = process.env.PORT || 8080;
+
+app.use(express.static(path.join(__dirname, '')))
+    .set('views', path.join(__dirname, ''))
+http.listen(PORT, () => console.log(`Listening on ${ PORT }`))
 
 let history = [];
 let lineColor;
