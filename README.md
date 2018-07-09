@@ -3,7 +3,8 @@ start
 
 ```js
 npm install
-node server.js
+run npm start
 ```
+
 
 Open localhost:8080
