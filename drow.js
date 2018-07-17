@@ -4,7 +4,7 @@ const ctx = canvas.getContext("2d");
 const rect = canvas.getBoundingClientRect();
 
 let startX, startY, mouseX, mouseY, colorPickerWidth, canvasWidth;
-let red = 250;
+let red = 255;
 let green = 255;
 let blue = 255;
 let opacity = 1;
@@ -12,15 +12,13 @@ let customColor = `rgba(${red},${green},${blue},${opacity})`;
 let isDrow = false;
 window.onload = () => {
     socket.emit('drawLine', 'start');
-    socket.on('lineColor', data => {
-        if (data) ctx.strokeStyle = data;
-    })
 };
 
 colorPickerWidth = window.innerWidth * 0.28 + 'px';
 canvasWidth = window.innerWidth * 0.7 + 'px';
 
 document.getElementsByClassName('color-picker')[0].style.width = colorPickerWidth;
+document.getElementsByClassName("alphaimg")[0].style.background = customColor;
 
 canvas.setAttribute('width', canvasWidth);
 canvas.setAttribute('height', '400');
@@ -33,6 +31,7 @@ socket.on('drawLine', (data) => {
     if (data) {
         data.forEach(item => {
             ctx.beginPath();
+            ctx.strokeStyle = item.color;
             ctx.moveTo(item.start.startX, item.start.startY);
             ctx.lineTo(item.and.mouseX, item.and.mouseY);
             ctx.stroke();
@@ -43,19 +42,20 @@ socket.on('drawLine', (data) => {
 });
 
 mouseCordinate = (event) => {
-    if (isDrow) {
-        mouseX = event.clientX - rect.left;
-        mouseY = event.clientY - rect.top;
-        let line = {start: {startX, startY}, and: {mouseX, mouseY}};
-        socket.emit('drawLine', line);
-        ctx.beginPath();
-        ctx.moveTo(startX, startY);
-        ctx.lineTo(mouseX, mouseY);
-        ctx.closePath();
-        ctx.stroke();
-        startX = mouseX;
-        startY = mouseY;
-    }
+    if (!isDrow) return;
+    mouseX = event.clientX - rect.left;
+    mouseY = event.clientY - rect.top;
+    let line = {start: {startX, startY}, and: {mouseX, mouseY}, color: customColor};
+    socket.emit('drawLine', line);
+    ctx.strokeStyle = customColor;
+    ctx.beginPath();
+    ctx.moveTo(startX, startY);
+    ctx.lineTo(mouseX, mouseY);
+    ctx.closePath();
+    ctx.stroke();
+    startX = mouseX;
+    startY = mouseY;
+
 }
 
 canvas.addEventListener('mousedown', (event) => {
@@ -95,6 +95,4 @@ setColor = (ev) => {
 setCanvasStyle = () => {
     customColor = `rgba(${red},${green},${blue},${opacity})`;
     document.getElementsByClassName("alphaimg")[0].style.background = customColor;
-    ctx.strokeStyle = customColor;
-    socket.emit('lineColor', customColor)
 }

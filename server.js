@@ -15,7 +15,6 @@ app
 http.listen(PORT, () => console.log(`Listening on ${ PORT }`))
 
 let history = [];
-let lineColor;
 io.on('connection', function (socket) {
     socket.on('drawLine', function (data) {
         if (data != 'start' && data) {
@@ -27,9 +26,5 @@ io.on('connection', function (socket) {
             history = [];
             io.emit('drawLine', '');
         }
-    });
-    socket.on('lineColor', function (data) {
-        lineColor = data;
-        socket.emit('lineColor', lineColor)
     });
 });
