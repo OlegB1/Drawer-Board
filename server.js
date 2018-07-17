@@ -10,25 +10,25 @@ app
     .use(express.static(path.join(__dirname, '')))
     .set('views', path.join(__dirname, ''))
     .set('view engine', 'ejs')
-    .get('/', (req, res, next) => res.sendFile(path.join(__dirname, 'index.html')) ) ;
+    .get('/', (req, res, next) => res.sendFile(path.join(__dirname, 'index.html')));
 
 http.listen(PORT, () => console.log(`Listening on ${ PORT }`))
 
 let history = [];
 let lineColor;
 io.on('connection', function (socket) {
-    socket.on('drawLine', function (data){
-        if (data!='start' && data){
+    socket.on('drawLine', function (data) {
+        if (data != 'start' && data) {
             history.push(data)
             io.emit('drawLine', history);
-        } else if (data=='start'){
+        } else if (data == 'start') {
             io.emit('drawLine', history);
-        } else if (!data){
+        } else if (!data) {
             history = [];
             io.emit('drawLine', '');
         }
     });
-    socket.on('lineColor', function (data){
+    socket.on('lineColor', function (data) {
         lineColor = data;
         socket.emit('lineColor', lineColor)
     });

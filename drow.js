@@ -43,7 +43,8 @@ socket.on('drawLine', (data) => {
 });
 
 mouseCordinate = (event) => {
-    if (isDrow) {       mouseX = event.clientX - rect.left;
+    if (isDrow) {
+        mouseX = event.clientX - rect.left;
         mouseY = event.clientY - rect.top;
         let line = {start: {startX, startY}, and: {mouseX, mouseY}};
         socket.emit('drawLine', line);
@@ -64,7 +65,7 @@ canvas.addEventListener('mousedown', (event) => {
     this.addEventListener('mousemove', mouseCordinate)
 });
 
-canvas.addEventListener("mouseup", () => {
+window.addEventListener("mouseup", () => {
     isDrow = false;
 });
 

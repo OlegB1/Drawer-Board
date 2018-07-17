@@ -31,6 +31,7 @@ h1 {
 }
 
 .clear-canvas {
+    border: none;
     display: inline-block;
     vertical-align: top;
     border-radius: 3px;
@@ -40,6 +41,7 @@ h1 {
     background-color: #008800;
     color: #ffffff;
 }
+
 .alphaimg {
     height: 100px;
     width: 100px;
@@ -50,7 +52,7 @@ h1 {
     background-size: contain;
     border-radius: 5px;
     margin: auto;
-    background-color: rgb(0,0,0);
+    background-color: rgb(0, 0, 0);
 }
 
 h3 {
@@ -80,7 +82,7 @@ h3 {
     border-width: thin;
 }
 
-.opacity{
+.opacity {
     background-color: rgba(255, 255, 255, 0.1);
     border-radius: 3px;
     border-style: solid;
@@ -91,11 +93,11 @@ h3 {
     margin: 10px 0px;
 }
 
-input[name]{
+input[name] {
     cursor: pointer;
 }
 
-input[name='red']{
+input[name='red'] {
     width: 98%;
 }
 
@@ -103,16 +105,16 @@ input[name='blue'] {
     width: 98%;
 }
 
-input[name='green']{
+input[name='green'] {
     width: 98%;
 }
 
-input[name='opacity']{
+input[name='opacity'] {
     width: 98%;
 }
 
 .satcolor {
-    background-color:  transparent;
+    background-color: transparent;
 }
 
 .sat {
