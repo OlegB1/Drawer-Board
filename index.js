@@ -10,7 +10,7 @@ app
     .use(express.static(path.join(__dirname, '')))
     .set('views', path.join(__dirname, ''))
     .set('view engine', 'ejs')
-    .get('/', (req, res) => res.render('index'))
+    .get('/', (req, res, next) => res.sendFile(path.join(__dirname, 'index.html')) ) ;
 
 http.listen(PORT, () => console.log(`Listening on ${ PORT }`))
 
