@@ -6,25 +6,26 @@ const path = require('path')
 
 const PORT = process.env.PORT || 8080;
 
-app
-    .use(express.static(path.join(__dirname, '')))
-    .set('views', path.join(__dirname, ''))
-    .set('view engine', 'ejs')
-    .get('/', (req, res, next) => res.sendFile(path.join(__dirname, 'index.html')));
+app.use(express.static(path.join(__dirname, '')));
 
-http.listen(PORT, () => console.log(`Listening on ${ PORT }`))
+http.listen(PORT, () => console.log(`Listening on ${ PORT }`));
 
 let history = [];
-io.on('connection', function (socket) {
-    socket.on('drawLine', function (data) {
-        if (data != 'start' && data) {
+io.on('connection', (socket) => {
+    socket.on('drawLine', (data) => {
+        if (data != 'getData' && data) {
             history.push(data)
             io.emit('drawLine', history);
-        } else if (data == 'start') {
+        } else if (data == 'getData') {
             io.emit('drawLine', history);
         } else if (!data) {
             history = [];
             io.emit('drawLine', '');
         }
     });
+    socket.on('restore', (data) => {
+        history.splice(history.length - data.stage, data.stage);
+        history.push(data.mouseCordinates);
+        socket.emit('drawLine', history)
+    })
 });

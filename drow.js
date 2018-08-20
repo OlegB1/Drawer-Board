@@ -1,43 +1,50 @@
-const socket = io();
-const canvas = document.getElementsByTagName('canvas')[0];
-const ctx = canvas.getContext("2d");
-const rect = canvas.getBoundingClientRect();
-
 let startX, startY, mouseX, mouseY, colorPickerWidth, canvasWidth;
 let red = 255;
 let green = 255;
 let blue = 255;
 let opacity = 1;
-let customColor = `rgba(${red},${green},${blue},${opacity})`;
 let isDrow = false;
+let customColor = `rgba(${red},${green},${blue},${opacity})`;
+let mouseCordinates = [];
+let stage = 0;
+const socket = io();
+const canvas = document.getElementsByTagName('canvas')[0];
+const ctx = canvas.getContext("2d");
+const rect = canvas.getBoundingClientRect();
 window.onload = () => {
-    socket.emit('drawLine', 'start');
+    socket.emit('drawLine', 'getData');
 };
 
-colorPickerWidth = window.innerWidth * 0.28 + 'px';
-canvasWidth = window.innerWidth * 0.7 + 'px';
+document.getElementsByClassName("colorImg")[0].style.background = customColor;
 
-document.getElementsByClassName('color-picker')[0].style.width = colorPickerWidth;
-document.getElementsByClassName("alphaimg")[0].style.background = customColor;
+
+canvasWidth = canvas.parentElement.offsetWidth * 0.95 + 'px';
+canvasHeight = '500px';
 
 canvas.setAttribute('width', canvasWidth);
-canvas.setAttribute('height', '400');
+canvas.setAttribute('height', canvasHeight);
 
 canvas.style.background = '#AAA';
+
 ctx.strokeStyle = customColor;
-ctx.lineWidth = 10;
+ctx.lineWidth = 7;
 
 socket.on('drawLine', (data) => {
-    if (data) {
-        data.forEach(item => {
-            ctx.beginPath();
-            ctx.strokeStyle = item.color;
-            ctx.moveTo(item.start.startX, item.start.startY);
-            ctx.lineTo(item.and.mouseX, item.and.mouseY);
-            ctx.stroke();
-            ctx.closePath();
-            ctx.stroke();
-        })
+    if (data.length) {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        if (stage) {
+            data.splice(data.length - stage, stage);
+        }
+        for (let i = 0; i < data.length; i++) {
+            for (let j = 0; j < data[i].length; j++) {
+                ctx.beginPath();
+                ctx.strokeStyle = data[i][j].color;
+                ctx.moveTo(data[i][j].start.startX, data[i][j].start.startY);
+                ctx.lineTo(data[i][j].and.mouseX, data[i][j].and.mouseY);
+                ctx.closePath();
+                ctx.stroke();
+            }
+        }
     } else ctx.clearRect(0, 0, canvas.width, canvas.height);
 });
 
@@ -45,8 +52,8 @@ mouseCordinate = (event) => {
     if (!isDrow) return;
     mouseX = event.clientX - rect.left;
     mouseY = event.clientY - rect.top;
-    let line = {start: {startX, startY}, and: {mouseX, mouseY}, color: customColor};
-    socket.emit('drawLine', line);
+    let points = {start: {startX, startY}, and: {mouseX, mouseY}, color: customColor};
+    mouseCordinates.push(points);
     ctx.strokeStyle = customColor;
     ctx.beginPath();
     ctx.moveTo(startX, startY);
@@ -62,37 +69,67 @@ canvas.addEventListener('mousedown', (event) => {
     startX = event.clientX - rect.left;
     startY = event.clientY - rect.top;
     isDrow = true;
-    this.addEventListener('mousemove', mouseCordinate)
+    canvas.addEventListener('mousemove', mouseCordinate);
 });
 
 window.addEventListener("mouseup", () => {
-    isDrow = false;
+    if (!isDrow) {
+        return;
+    }
+    if (isDrow) {
+        if (mouseCordinates.length && !stage) {
+            socket.emit('drawLine', mouseCordinates);
+        } else {
+            socket.emit('restore', {mouseCordinates: mouseCordinates, stage: stage});
+        }
+        isDrow = false;
+        canvas.removeEventListener('mousemove', mouseCordinate);
+        mouseCordinates = [];
+        stage = 0;
+    }
 });
 
-document.querySelectorAll('input[type=range]').forEach((item) => {
-    item.addEventListener('mousedown', () => {
-        this.addEventListener('mousemove', setColor)
-    });
-})
+setColor = (ev) => {
+    if (ev.name == 'red') {
+        red = event.target.value;
+    }
+    if (ev.name == 'green') {
+        green = event.target.value;
+    }
+    if (ev.name == 'blue') {
+        blue = event.target.value;
+    }
+    setCanvasStyle();
+};
 
-document.querySelectorAll('input[type=range]').forEach((item) => {
-    item.addEventListener("mouseup", () => {
-        this.removeEventListener('mousemove', setColor);
-    });
-})
+setCanvasStyle = () => {
+    customColor = `rgba(${red},${green},${blue},${opacity})`;
+    document.getElementsByClassName("colorImg")[0].style.background = customColor;
+};
+
 clearCanvas = () => {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     socket.emit('drawLine', '');
 };
 
-setColor = (ev) => {
-    if (ev.target.name == 'red') red = event.target.value;
-    if (ev.target.name == 'green') green = event.target.value;
-    if (ev.target.name == 'blue') blue = event.target.value;
-    setCanvasStyle()
-}
+backStage = () => {
+    stage++;
+    socket.emit('drawLine', 'getData');
+};
 
-setCanvasStyle = () => {
-    customColor = `rgba(${red},${green},${blue},${opacity})`;
-    document.getElementsByClassName("alphaimg")[0].style.background = customColor;
+nextStage = () => {
+    if (stage > 0) {
+        stage--;
+    }
+    socket.emit('drawLine', 'getData');
+};
+
+saveCanvas = () => {
+    let a = document.createElement('a');
+    a.download = 'canvas.jpg';
+    a.setAttribute('href', canvas.toDataURL());
+    a.style.display = 'none';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
 }
