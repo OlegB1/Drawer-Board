@@ -4,7 +4,7 @@ let green = 255;
 let blue = 255;
 let opacity = 1;
 let isDrow = false;
-let customColor = `rgba(${red},${green},${blue},${opacity})`;
+let customColor = `rgba(${red}, ${green}, ${blue}, ${opacity})`;
 let mouseCordinates = [];
 let stage = 0;
 const socket = io();
@@ -18,8 +18,8 @@ window.onload = () => {
 document.getElementsByClassName("colorImg")[0].style.background = customColor;
 
 
-canvasWidth = canvas.parentElement.offsetWidth * 0.95 + 'px';
-canvasHeight = '500px';
+canvasWidth = canvas.parentElement.offsetWidth -30 + 'px';
+canvasHeight = document.getElementsByClassName('color-picker')[0].offsetHeight + 'px';
 
 canvas.setAttribute('width', canvasWidth);
 canvas.setAttribute('height', canvasHeight);
@@ -36,22 +36,31 @@ socket.on('drawLine', (data) => {
             data.splice(data.length - stage, stage);
         }
         for (let i = 0; i < data.length; i++) {
-            for (let j = 0; j < data[i].length; j++) {
-                ctx.beginPath();
-                ctx.strokeStyle = data[i][j].color;
-                ctx.moveTo(data[i][j].start.startX, data[i][j].start.startY);
-                ctx.lineTo(data[i][j].and.mouseX, data[i][j].and.mouseY);
-                ctx.closePath();
-                ctx.stroke();
+            if (data[i].length >= 1 && data[i][0].and) {
+                for (let j = 0; j < data[i].length; j++) {
+                    ctx.beginPath();
+                    ctx.strokeStyle = data[i][j].color;
+                    ctx.moveTo(data[i][j].start.startX, data[i][j].start.startY);
+                    ctx.lineTo(data[i][j].and.mouseX, data[i][j].and.mouseY);
+                    ctx.closePath();
+                    ctx.stroke();
+                }
+            } else if (!data[i][0].and) {
+                drawCircle(data[i][0].start.startX, data[i][0].start.startY, data[i][0].color);
             }
         }
     } else ctx.clearRect(0, 0, canvas.width, canvas.height);
 });
 
 mouseCordinate = (event) => {
-    if (!isDrow) return;
-    mouseX = event.clientX - rect.left;
-    mouseY = event.clientY - rect.top;
+    if (event.type != 'touchmove'){
+        mouseX = event.clientX - rect.left;
+        mouseY = event.clientY - rect.top;
+    }
+    if (event.type == 'touchmove'){
+        mouseX = event.touches[0].clientX - rect.left;
+        mouseY = event.touches[0].clientY - rect.top;
+    }
     let points = {start: {startX, startY}, and: {mouseX, mouseY}, color: customColor};
     mouseCordinates.push(points);
     ctx.strokeStyle = customColor;
@@ -62,8 +71,21 @@ mouseCordinate = (event) => {
     ctx.stroke();
     startX = mouseX;
     startY = mouseY;
+    event.preventDefault();
 
-}
+};
+
+drawCircle = (x, y, color) => {
+    let radius = ctx.lineWidth / 2;
+    ctx.beginPath();
+    ctx.arc(x, y, radius, 0, 2 * Math.PI, false);
+    ctx.fillStyle = color;
+    ctx.fill();
+    ctx.lineWidth = 1;
+    ctx.strokeStyle = color;
+    ctx.stroke();
+    ctx.lineWidth = 7;
+};
 
 canvas.addEventListener('mousedown', (event) => {
     startX = event.clientX - rect.left;
@@ -72,12 +94,49 @@ canvas.addEventListener('mousedown', (event) => {
     canvas.addEventListener('mousemove', mouseCordinate);
 });
 
+canvas.addEventListener('touchstart', (event) => {
+    startX = event.touches[0].clientX - rect.left;
+    startY = event.touches[0].clientY - rect.top;
+    isDrow = true;
+    canvas.addEventListener('touchmove', mouseCordinate,false);
+},false);
+
+window.addEventListener('touchend', (event) => {
+    if (!isDrow) {
+        return;
+    }
+    if (isDrow) {
+        if (mouseCordinates.length && !stage) {
+            if (mouseCordinates.length > 1) {
+                socket.emit('drawLine', mouseCordinates);
+            }
+        } else if (!mouseCordinates.length) {
+            drawCircle(startX, startY, customColor);
+            mouseCordinates.push({start: {startX, startY}, color: customColor});
+            socket.emit('drawLine', mouseCordinates);
+        } else {
+            socket.emit('restore', {mouseCordinates: mouseCordinates, stage: stage});
+        }
+        isDrow = false;
+        canvas.removeEventListener('touchmove', mouseCordinate);
+        mouseCordinates = [];
+        stage = 0;
+    }
+});
+
+
 window.addEventListener("mouseup", () => {
     if (!isDrow) {
         return;
     }
     if (isDrow) {
         if (mouseCordinates.length && !stage) {
+            if (mouseCordinates.length > 1) {
+                socket.emit('drawLine', mouseCordinates);
+            }
+        } else if (!mouseCordinates.length) {
+            drawCircle(startX, startY, customColor);
+            mouseCordinates.push({start: {startX, startY}, color: customColor});
             socket.emit('drawLine', mouseCordinates);
         } else {
             socket.emit('restore', {mouseCordinates: mouseCordinates, stage: stage});
@@ -103,7 +162,7 @@ setColor = (ev) => {
 };
 
 setCanvasStyle = () => {
-    customColor = `rgba(${red},${green},${blue},${opacity})`;
+    customColor = `rgba(${red}, ${green}, ${blue}, ${opacity})`;
     document.getElementsByClassName("colorImg")[0].style.background = customColor;
 };
 
