@@ -112,7 +112,6 @@ window.addEventListener("mouseup", () => {
 });
 
 mouseCordinate = (event) => {
-    event.preventDefault();
     if (event.type != 'touchmove') {
         endX = event.clientX - rect.left;
         endY = event.clientY - rect.top;
