@@ -3,7 +3,7 @@ let red = 255;
 let green = 255;
 let blue = 255;
 let opacity = 1;
-let isDrow = false;
+let isDraw = false;
 let customColor = `rgba(${red}, ${green}, ${blue}, ${opacity})`;
 let mouseCordinates = [];
 let stage = 0;
@@ -51,7 +51,7 @@ canvas.addEventListener('mousedown', (event) => {
     rect = canvas.getBoundingClientRect();
     startX = event.clientX - rect.left;
     startY = event.clientY - rect.top;
-    isDrow = true;
+    isDraw = true;
     canvas.addEventListener('mousemove', mouseCordinate);
 });
 
@@ -59,15 +59,15 @@ canvas.addEventListener('touchstart', (event) => {
     rect = canvas.getBoundingClientRect();
     startX = event.touches[0].clientX - rect.left;
     startY = event.touches[0].clientY - rect.top;
-    isDrow = true;
+    isDraw = true;
     canvas.addEventListener('touchmove', mouseCordinate, false);
 }, false);
 
 window.addEventListener('touchend', (event) => {
-    if (!isDrow) {
+    if (!isDraw) {
         return;
     }
-    if (isDrow) {
+    if (isDraw) {
         if (mouseCordinates.length && !stage) {
             document.body.style.overflowY = 'auto';
             if (mouseCordinates.length > 1) {
@@ -81,7 +81,7 @@ window.addEventListener('touchend', (event) => {
         } else {
             socket.emit('restore', {mouseCordinates: mouseCordinates, stage: stage});
         }
-        isDrow = false;
+        isDraw = false;
         canvas.removeEventListener('touchmove', mouseCordinate);
         mouseCordinates = [];
         stage = 0;
@@ -90,10 +90,10 @@ window.addEventListener('touchend', (event) => {
 
 
 window.addEventListener("mouseup", () => {
-    if (!isDrow) {
+    if (!isDraw) {
         return;
     }
-    if (isDrow) {
+    if (isDraw) {
         if (mouseCordinates.length && !stage) {
             if (mouseCordinates.length > 1) {
                 socket.emit('drawLine', mouseCordinates);
@@ -105,7 +105,7 @@ window.addEventListener("mouseup", () => {
         } else {
             socket.emit('restore', {mouseCordinates: mouseCordinates, stage: stage});
         }
-        isDrow = false;
+        isDraw = false;
         canvas.removeEventListener('mousemove', mouseCordinate);
         mouseCordinates = [];
         stage = 0;
