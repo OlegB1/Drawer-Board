@@ -1,5 +1,4 @@
 @import url('https://fonts.googleapis.com/css?family=Open+Sans');
-/*@import url('bower_components/bootstrap/scss/bootstrap-grid');*/
 
 body {
     overflow-x: hidden;
@@ -114,6 +113,6 @@ input[name='red'], input[name='blue'], input[name='green'] {
     border-bottom-right-radius: 0px;
 }
 
-.row-padding{
+.margin-bottom{
     margin-bottom: 15px;
 }
