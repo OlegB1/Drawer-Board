@@ -56,6 +56,7 @@ canvas.addEventListener('mousedown', (event) => {
 });
 
 canvas.addEventListener('touchstart', (event) => {
+    event.preventDefault();
     rect = canvas.getBoundingClientRect();
     startX = event.touches[0].clientX - rect.left;
     startY = event.touches[0].clientY - rect.top;
@@ -69,12 +70,10 @@ window.addEventListener('touchend', (event) => {
     }
     if (isDraw) {
         if (mouseCordinates.length && !stage) {
-            document.body.style.overflowY = 'auto';
             if (mouseCordinates.length > 1) {
                 socket.emit('drawLine', mouseCordinates);
             }
         } else if (!mouseCordinates.length) {
-            document.body.style.overflowY = 'auto';
             drawCircle(startX, startY, customColor);
             mouseCordinates.push({start: {startX, startY}, color: customColor});
             socket.emit('drawLine', mouseCordinates);
@@ -113,6 +112,7 @@ window.addEventListener("mouseup", () => {
 });
 
 mouseCordinate = (event) => {
+    event.preventDefault();
     if (event.type != 'touchmove') {
         endX = event.clientX - rect.left;
         endY = event.clientY - rect.top;
@@ -120,8 +120,6 @@ mouseCordinate = (event) => {
     if (event.type == 'touchmove') {
         endX = event.touches[0].clientX - rect.left;
         endY = event.touches[0].clientY - rect.top;
-        document.body.style.overflowY = 'hidden';
-        event.preventDefault();
     }
     let point = {start: {startX, startY}, end: {endX, endY}, color: customColor};
     mouseCordinates.push(point);
