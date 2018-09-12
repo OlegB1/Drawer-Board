@@ -53,6 +53,7 @@ socket.on('drawLine', (data) => {
 });
 
 mouseCordinate = (event) => {
+    event.preventDefault();
     if (event.type != 'touchmove'){
         mouseX = event.clientX - rect.left;
         mouseY = event.clientY - rect.top;
@@ -71,7 +72,6 @@ mouseCordinate = (event) => {
     ctx.stroke();
     startX = mouseX;
     startY = mouseY;
-    event.preventDefault();
 
 };
 
