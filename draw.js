@@ -106,6 +106,7 @@ afterDraw = () => {
         }
         isDraw = false;
         canvas.removeEventListener('touchmove', DrawByCordinate);
+        canvas.removeEventListener('mousemove', DrawByCordinate);
         mouseCordinates = [];
         stage = 0;
     }
