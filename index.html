@@ -22,18 +22,14 @@
                     <div class="colorImg"></div>
                     <div style="text-align: center">
                         <div class="red margin-top">
-                            <input name="red" type="range" min="0" max="255" value="255" onchange="setColor(this)">
+                            <input name="red" type="range" min="0" max="255" value="255" onchange="setColor(event)">
                         </div>
                         <div class="green margin-top">
-                            <input name="green" type="range" min="0" max="255" value="255" onchange="setColor(this)">
+                            <input name="green" type="range" min="0" max="255" value="255" onchange="setColor(event)">
                         </div>
                         <div class="blue margin-top">
-                            <input name="blue" type="range" min="0" max="255" value="255" onchange="setColor(this)">
+                            <input name="blue" type="range" min="0" max="255" value="255" onchange="setColor(event)">
                         </div>
-                    </div>
-                    <div class="row">
-                        <div class="btn btn-secondary col-md-6 no-border-darius-right margin-bottom" onclick="nextStage()">Next stage</div>
-                        <div class="btn btn-secondary col-md-6 no-border-darius-left margin-bottom" onclick="backStage()">Back stage</div>
                     </div>
                     <div class="row">
                         <div class="btn btn-secondary col-md-6 no-border-darius-right margin-bottom" onclick="clearCanvas()">Clear drawing</div>

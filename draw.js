@@ -1,179 +1,154 @@
-let startX, startY, endX, endY, canvasWidth, rect;
-let red = 255;
-let green = 255;
-let blue = 255;
-let opacity = 1;
-let isDraw = false;
-let customColor = `rgba(${red}, ${green}, ${blue}, ${opacity})`;
-let mouseCordinates = [];
-let stage = 0;
-const socket = io();
-const canvas = document.getElementsByTagName('canvas')[0];
-const ctx = canvas.getContext("2d");
-window.onload = () => {
-    socket.emit('drawLine', 'getData');
-};
+(function () {
+    const socket = io();
+    const canvas = document.getElementsByTagName('canvas')[0];
+    const ctx = canvas.getContext("2d");
 
-document.getElementsByClassName("colorImg")[0].style.background = customColor;
+    //.row margin 15px
+    const canvasWidth = canvas.parentElement.offsetWidth - 30 + 'px';
+    const canvasHeight = document.getElementsByClassName('color-picker')[0].offsetHeight + 'px';
 
-//.row margin 15px
-canvasWidth = canvas.parentElement.offsetWidth - 30 + 'px';
-canvasHeight = document.getElementsByClassName('color-picker')[0].offsetHeight + 'px';
 
-canvas.setAttribute('width', canvasWidth);
-canvas.setAttribute('height', canvasHeight);
+    let startX, startY, endX, endY, rect;
+    let red = 255;
+    let green = 255;
+    let blue = 255;
+    let opacity = 1;
+    let customColor = `rgba(${red}, ${green}, ${blue}, ${opacity})`;
 
-canvas.style.background = '#AAA';
+    window.onload = () => {
+        socket.emit('getData');
+    };
 
-ctx.strokeStyle = customColor;
-ctx.lineWidth = 7;
-
-//draw after page load
-socket.on('drawLine', (data) => {
-    if (data.length) {
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-        if (stage) {
-            data.splice(data.length - stage, stage);
-        }
-        for (let i = 0; i < data.length; i++) {
-            if (data[i].length >= 1 && data[i][0].end) {
-                for (let j = 0; j < data[i].length; j++) {
-                    drawLine(data[i][j].start.startX, data[i][j].start.startY,
-                        data[i][j].end.endX, data[i][j].end.endY, data[i][j].color);
-                }
-            } else if (!data[i][0].end) {
-                drawCircle(data[i][0].start.startX, data[i][0].start.startY, data[i][0].color);
-            }
-        }
-    } else ctx.clearRect(0, 0, canvas.width, canvas.height);
-});
-
-canvas.addEventListener('mousedown', (event) => {
-    rect = canvas.getBoundingClientRect();
-    startX = event.clientX - rect.left;
-    startY = event.clientY - rect.top;
-    isDraw = true;
-    canvas.addEventListener('mousemove', DrawByCordinate);
-});
-
-window.addEventListener("mouseup", () => {
-    afterDraw();
-});
-
-canvas.addEventListener('touchstart', (event) => {
-    event.preventDefault();
-    rect = canvas.getBoundingClientRect();
-    startX = event.touches[0].clientX - rect.left;
-    startY = event.touches[0].clientY - rect.top;
-    isDraw = true;
-    canvas.addEventListener('touchmove', DrawByCordinate, false);
-});
-
-window.addEventListener('touchend', () => {
-    afterDraw();
-});
-
-DrawByCordinate = (event) => {
-    if (event.type != 'touchmove') {
-        endX = event.clientX - rect.left;
-        endY = event.clientY - rect.top;
-    }
-    if (event.type == 'touchmove') {
-        endX = event.touches[0].clientX - rect.left;
-        endY = event.touches[0].clientY - rect.top;
-    }
-    let point = {start: {startX, startY}, end: {endX, endY}, color: customColor};
-    mouseCordinates.push(point);
-    drawLine(startX, startY, endX, endY, customColor);
-    [startX, startY] = [endX, endY];
-};
-
-afterDraw = () => {
-    if (!isDraw) {
-        return;
-    }
-    if (isDraw) {
-        if (mouseCordinates.length && !stage) {
-            if (mouseCordinates.length > 1) {
-                socket.emit('drawLine', mouseCordinates);
-            }
-        } else if (!mouseCordinates.length) {
-            drawCircle(startX, startY, customColor);
-            mouseCordinates.push({start: {startX, startY}, color: customColor});
-            socket.emit('drawLine', mouseCordinates);
-        } else {
-            socket.emit('restore', {mouseCordinates: mouseCordinates, stage: stage});
-        }
-        isDraw = false;
-        canvas.removeEventListener('touchmove', DrawByCordinate);
-        canvas.removeEventListener('mousemove', DrawByCordinate);
-        mouseCordinates = [];
-        stage = 0;
-    }
-}
-
-drawCircle = (x, y, color) => {
-    let radius = ctx.lineWidth / 2;
-    ctx.beginPath();
-    ctx.arc(x, y, radius, 0, 2 * Math.PI, false);
-    ctx.fillStyle = color;
-    ctx.fill();
-    ctx.lineWidth = 1;
-    ctx.strokeStyle = color;
-    ctx.stroke();
-    ctx.lineWidth = 7;
-};
-
-drawLine = (startX, startY, endX, endY, color) => {
-    ctx.strokeStyle = color;
-    ctx.beginPath();
-    ctx.moveTo(startX, startY);
-    ctx.lineTo(endX, endY);
-    ctx.closePath();
-    ctx.stroke();
-}
-
-setColor = (ev) => {
-    if (ev.name == 'red') {
-        red = event.target.value;
-    }
-    if (ev.name == 'green') {
-        green = event.target.value;
-    }
-    if (ev.name == 'blue') {
-        blue = event.target.value;
-    }
-    setCanvasStyle();
-};
-
-setCanvasStyle = () => {
-    customColor = `rgba(${red}, ${green}, ${blue}, ${opacity})`;
     document.getElementsByClassName("colorImg")[0].style.background = customColor;
-};
 
-clearCanvas = () => {
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    socket.emit('drawLine', '');
-};
+    canvas.setAttribute('width', canvasWidth);
+    canvas.setAttribute('height', canvasHeight);
 
-backStage = () => {
-    stage++;
-    socket.emit('drawLine', 'getData');
-};
+    canvas.style.background = '#AAA';
 
-nextStage = () => {
-    if (stage > 0) {
-        stage--;
-    }
-    socket.emit('drawLine', 'getData');
-};
+    ctx.strokeStyle = customColor;
+    ctx.lineWidth = 7;
 
-saveCanvas = () => {
-    let a = document.createElement('a');
-    a.download = 'canvas.jpg';
-    a.setAttribute('href', canvas.toDataURL());
-    a.style.display = 'none';
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-}
+    //draw picture after page load
+    socket.on('drawLine', coordinates => {
+        if (coordinates.length) {
+            coordinates.forEach(coordinate => draw(coordinate));
+            return;
+        }
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+    });
+
+    canvas.addEventListener('mousedown', event => {
+        rect = canvas.getBoundingClientRect();
+        startX = event.clientX - rect.left;
+        startY = event.clientY - rect.top;
+        canvas.addEventListener('mousemove', drawByCoordinate);
+    });
+
+    canvas.addEventListener('touchstart', event => {
+        const option = false;
+        event.preventDefault();
+        rect = canvas.getBoundingClientRect();
+        startX = event.touches[0].clientX - rect.left;
+        startY = event.touches[0].clientY - rect.top;
+        canvas.addEventListener('touchmove', drawByCoordinate, option);
+    });
+
+    window.addEventListener("mouseup", () => {
+        canvas.removeEventListener('mousemove', drawByCoordinate);
+    });
+
+    window.addEventListener('touchend', () => {
+        canvas.removeEventListener('touchmove', drawByCoordinate);
+    });
+
+    function drawByCoordinate(event) {
+        if (event.type != 'touchmove') {
+            endX = event.clientX - rect.left;
+            endY = event.clientY - rect.top;
+        }
+        if (event.type == 'touchmove') {
+            endX = event.touches[0].clientX - rect.left;
+            endY = event.touches[0].clientY - rect.top;
+        }
+        const point = {
+            start: {startX, startY},
+            end: {endX, endY},
+            color: customColor
+        };
+        sendCoordinateToServer(point);
+        const start = {startX, startY};
+        const end = {endX, endY};
+        draw({start, end, customColor});
+        [startX, startY] = [endX, endY];
+    };
+
+    function sendCoordinateToServer(point) {
+        socket.emit('saveCoordinates', point);
+    };
+
+    function draw({start, end, color}) {
+        if (end.endX) {
+            ctx.strokeStyle = color;
+            ctx.beginPath();
+            ctx.moveTo(start.startX, start.startY);
+            ctx.lineTo(end.endX, end.endY);
+            ctx.closePath();
+            ctx.stroke();
+            return;
+        }
+        drawCircle(start,color);
+    };
+
+    function drawCircle(start, color) {
+        const anticlockwise = false;
+        const startAngle = 0;
+        const endAngle = 2 * Math.PI;
+        const radius = ctx.lineWidth / 2;
+
+        ctx.beginPath();
+        ctx.arc(start.x, start.y, radius, startAngle, endAngle, anticlockwise);
+        ctx.fillStyle = color;
+        ctx.fill();
+        ctx.lineWidth = 1;
+        ctx.strokeStyle = color;
+        ctx.stroke();
+        ctx.lineWidth = 7;
+    };
+
+    window.setColor = event => {
+        const {name, value} = event.target;
+        switch (name) {
+            case 'red' :
+                red = value;
+                break;
+            case 'green' :
+                green = value;
+                break;
+            default :
+                blue = value;
+                break;
+        }
+        setCanvasStyle();
+    };
+
+    function setCanvasStyle() {
+        customColor = `rgba(${red}, ${green}, ${blue}, ${opacity})`;
+        document.getElementsByClassName("colorImg")[0].style.background = customColor;
+    };
+
+    window.clearCanvas = () => {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        socket.emit('saveCoordinates', '');
+    };
+
+    window.saveCanvas = () => {
+        let a = document.createElement('a');
+        a.download = 'canvas.jpg';
+        a.setAttribute('href', canvas.toDataURL());
+        a.style.display = 'none';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+    };
+}());
